@@ -2,6 +2,7 @@
 <html>
 <head>
 <meta http-equiv="refresh" content="3600">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta charset="UTF-8">
 
 <style>
@@ -26,7 +27,7 @@ video,img{
 
 // lista de conteúdos para cada tablet
 const screens = {
-  1: { type: "video", src: "media/videocar.mp4" },
+  1: { type: "video", src: "media/videocar.mp4", fallback: "media/videocar.jpg" },
   2: { type: "video", src: "media/video2.mp4" },
   3: { type: "video", src: "media/video3.mp4" },
   4: { type: "image", src: "media/imagem4.jpg" },
@@ -37,37 +38,51 @@ const screens = {
   9: { type: "video", src: "media/video9.mp4" }
 };
 
-// pegar id da tela
+// Pegar id do tablet da URL
 const params = new URLSearchParams(window.location.search);
-const screenId = params.get("screen");
+const screenId = params.get("screen") || "1";
 
 const container = document.getElementById("container");
 const media = screens[screenId];
 
 if(media){
-
   if(media.type === "video"){
+    const video = document.createElement("video");
+    video.id = "media";
+    video.autoplay = true;
+    video.muted = true;
+    video.loop = true;
+    video.playsInline = true;
 
-    container.innerHTML = `
-      <video autoplay muted loop playsinline>
-        <source src="${media.src}" type="video/mp4">
-      </video>
-    `;
+    const source = document.createElement("source");
+    source.src = media.src;
+    source.type = "video/mp4";
 
+    video.appendChild(source);
+
+    // Fallback: se não carregar vídeo, mostra imagem
+    video.onerror = () => {
+      const img = document.createElement("img");
+      img.id = "media";
+      img.src = media.fallback || "";
+      container.innerHTML = "";
+      container.appendChild(img);
+    }
+
+    container.appendChild(video);
+
+  } else if(media.type === "image"){
+    const img = document.createElement("img");
+    img.id = "media";
+    img.src = media.src;
+    container.appendChild(img);
   }
-
-  if(media.type === "image"){
-
-    container.innerHTML = `
-      <img src="${media.src}">
-    `;
-
-  }
-
+} else {
+  container.innerHTML = "<p style='color:white;text-align:center;margin-top:50%;'>Nenhum conteúdo configurado para este tablet.</p>";
 }
-
 </script>
 
 </body>
 
 </html>
+
