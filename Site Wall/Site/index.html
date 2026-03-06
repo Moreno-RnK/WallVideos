@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="refresh" content="3600">
+<meta charset="UTF-8">
+
+<style>
+body{
+  margin:0;
+  background:black;
+}
+
+video,img{
+  width:100vw;
+  height:100vh;
+  object-fit:cover;
+}
+</style>
+
+</head>
+<body>
+
+<div id="container"></div>
+
+<script>
+
+// lista de conteúdos para cada tablet
+const screens = {
+  1: { type: "video", src: "media/videocar.mp4" },
+  2: { type: "image", src: "media/imagem2.jpg" },
+  3: { type: "video", src: "media/video3.mp4" },
+  4: { type: "image", src: "media/imagem4.jpg" },
+  5: { type: "video", src: "media/video5.mp4" },
+  6: { type: "image", src: "media/imagem6.jpg" },
+  7: { type: "video", src: "media/video7.mp4" },
+  8: { type: "image", src: "media/imagem8.jpg" },
+  9: { type: "video", src: "media/video9.mp4" }
+};
+
+// pegar id da tela
+const params = new URLSearchParams(window.location.search);
+const screenId = params.get("screen");
+
+const container = document.getElementById("container");
+const media = screens[screenId];
+
+if(media){
+
+  if(media.type === "video"){
+
+    container.innerHTML = `
+      <video autoplay muted loop playsinline>
+        <source src="${media.src}" type="video/mp4">
+      </video>
+    `;
+
+  }
+
+  if(media.type === "image"){
+
+    container.innerHTML = `
+      <img src="${media.src}">
+    `;
+
+  }
+
+}
+
+</script>
+
+</body>
+</html>
