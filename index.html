@@ -86,6 +86,7 @@
         if (!q) {
           return "";
         }
+
         var parts = q.split("&");
         var i;
         var pair;
@@ -104,6 +105,7 @@
         if (!raw) {
           raw = getParam("t");
         }
+
         if (raw) {
           var n = parseInt(raw, 10);
           if (!isNaN(n) && n >= 1 && n <= 9) {
@@ -129,6 +131,7 @@
 
       function showMessage(message) {
         clearContent();
+
         var box = document.createElement("div");
         box.style.color = "#ffd166";
         box.style.fontSize = "16px";
@@ -157,12 +160,23 @@
         };
 
         content.appendChild(img);
-        logStatus(["tablet " + item._tablet, item.label, "imagem carregando: " + item.src]);
+
+        var lines = [];
+        if (typeof item._tablet !== "undefined") {
+          lines.push("tablet " + item._tablet);
+        }
+        if (item.label) {
+          lines.push(item.label);
+        }
+        lines.push("imagem carregando: " + item.src);
+
+        logStatus(lines);
       }
 
       function errorMessageFromVideo(video, item) {
         var e = video.error;
-        var msg = "Erro do video";
+        var msg = "Erro do vídeo";
+
         if (e) {
           var reason = "DESCONHECIDO";
           if (e.code === 1) reason = "1 (aborto)";
@@ -171,14 +185,20 @@
           if (e.code === 4) reason = "4 (formato não suportado)";
           msg = "Erro do vídeo: " + reason;
         }
+
         msg += " - " + item.src;
-        showMessage(msg + ". Exibindo fallback/arquivo de mídia.");
 
         if (item.poster) {
-          showImage({ src: item.poster, label: "Poster de " + item.label });
+          showImage({
+            src: item.poster,
+            label: "Poster de " + item.label,
+            _tablet: item._tablet
+          });
+          setStatus(msg + "\nexibindo poster");
           return;
         }
 
+        showMessage(msg);
         setStatus(msg);
       }
 
@@ -187,6 +207,7 @@
         var codecs = 'video/mp4; codecs="avc1.42E01E, mp4a.40.2"';
         var result = test.canPlayType("video/mp4");
         var result2 = test.canPlayType(codecs);
+
         return {
           plain: result || "não",
           codecs: result2 || "não"
@@ -197,17 +218,21 @@
         clearContent();
 
         var video = document.createElement("video");
+        var support = canPlayMp4();
+
         video.setAttribute("autoplay", "autoplay");
         video.setAttribute("muted", "muted");
         video.setAttribute("loop", "loop");
         video.setAttribute("preload", "auto");
         video.setAttribute("playsinline", "playsinline");
         video.setAttribute("webkit-playsinline", "webkit-playsinline");
-        video.setAttribute("poster", item.poster || "");
+
+        if (item.poster) {
+          video.setAttribute("poster", item.poster);
+        }
+
         video.controls = false;
         video.src = item.src;
-
-        var support = canPlayMp4();
 
         video.onloadstart = function () {
           logStatus([
@@ -235,13 +260,23 @@
             item.label,
             "pronto para tocar"
           ]);
+
           try {
             var r = video.play();
             if (!r) {
-              logStatus(["tablet " + item._tablet, item.label, "play() sem retorno"]);
+              logStatus([
+                "tablet " + item._tablet,
+                item.label,
+                "play() sem retorno"
+              ]);
             }
           } catch (e2) {
-            logStatus(["tablet " + item._tablet, item.label, "play() lançou exceção", String(e2.message || e2)]);
+            logStatus([
+              "tablet " + item._tablet,
+              item.label,
+              "play() lançou exceção",
+              String(e2.message || e2)
+            ]);
           }
         };
 
@@ -266,7 +301,11 @@
         };
 
         video.addEventListener("stalled", function () {
-          logStatus(["tablet " + item._tablet, item.label, "estabelecendo conexão..."]);
+          logStatus([
+            "tablet " + item._tablet,
+            item.label,
+            "estabelecendo conexão..."
+          ]);
         });
 
         content.appendChild(video);
