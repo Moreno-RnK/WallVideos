@@ -220,19 +220,22 @@
         var video = document.createElement("video");
         var support = canPlayMp4();
 
+        video.autoplay = true;
+        video.muted = true;
+        video.loop = true;
+        video.preload = "auto";
+        video.controls = true;
+        video.src = item.src;
+
         video.setAttribute("autoplay", "autoplay");
         video.setAttribute("muted", "muted");
         video.setAttribute("loop", "loop");
-        video.setAttribute("preload", "auto");
         video.setAttribute("playsinline", "playsinline");
         video.setAttribute("webkit-playsinline", "webkit-playsinline");
 
         if (item.poster) {
-          video.setAttribute("poster", item.poster);
+          video.poster = item.poster;
         }
-
-        video.controls = false;
-        video.src = item.src;
 
         video.onloadstart = function () {
           logStatus([
@@ -258,18 +261,23 @@
           logStatus([
             "tablet " + item._tablet,
             item.label,
-            "pronto para tocar"
+            "pronto para tocar",
+            "tentando play..."
           ]);
 
           try {
-            var r = video.play();
-            if (!r) {
-              logStatus([
-                "tablet " + item._tablet,
-                item.label,
-                "play() sem retorno"
-              ]);
-            }
+            video.play();
+
+            setTimeout(function () {
+              if (video.paused) {
+                logStatus([
+                  "tablet " + item._tablet,
+                  item.label,
+                  "play não iniciou automaticamente",
+                  "toque na tela se necessário"
+                ]);
+              }
+            }, 1000);
           } catch (e2) {
             logStatus([
               "tablet " + item._tablet,
@@ -307,6 +315,12 @@
             "estabelecendo conexão..."
           ]);
         });
+
+        video.onclick = function () {
+          try {
+            video.play();
+          } catch (e3) {}
+        };
 
         content.appendChild(video);
         setStatus("carregando vídeo");
