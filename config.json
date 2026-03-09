@@ -3,10 +3,10 @@
     "type": "image",
     "url": "https://moreno-rnk.github.io/WallVideos/media/default.jpg",
     "version": "1"
-},
-{
-  "209b50e71747d6":,
-  "type": "video",
-  "url": "https://moreno-rnk.github.io/WallVideos/media/videocar.mp4",
-  "version": "1"
+  },
+  "209b50e71747d6": {
+    "type": "video",
+    "url": "https://moreno-rnk.github.io/WallVideos/media/videocar.mp4",
+    "version": "1"
+  }
 }
