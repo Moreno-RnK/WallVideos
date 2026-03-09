@@ -6,94 +6,92 @@
   <title>Kiosk Tablet</title>
   <style>
     html, body {
-      margin: 0;
-      padding: 0;
       width: 100%;
       height: 100%;
+      margin: 0;
+      padding: 0;
       background: #000;
       color: #fff;
-      font-family: Arial, sans-serif;
       overflow: hidden;
+      font-family: Arial, sans-serif;
+    }
+
+    body {
+      position: relative;
     }
 
     #status {
       position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
       z-index: 10;
-      top: 8px;
-      left: 8px;
-      right: 8px;
-      background: rgba(0, 0, 0, 0.6);
-      padding: 6px 10px;
-      font-size: 14px;
-      line-height: 1.3;
+      padding: 8px 10px;
+      font-size: 12px;
+      line-height: 1.35;
+      background: rgba(0, 0, 0, 0.7);
+      white-space: pre-line;
     }
 
     #content {
       width: 100%;
       height: 100%;
+      position: relative;
       background: #000;
-      text-align: center;
     }
 
     video,
     img {
-      display: block;
       width: 100%;
       height: 100%;
-      background: #000;
       border: 0;
-    }
-
-    #playBtn {
-      position: absolute;
-      z-index: 20;
-      right: 16px;
-      bottom: 16px;
-      width: 72px;
-      height: 72px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,0.4);
-      background: rgba(0,0,0,0.65);
-      color: #fff;
-      font-size: 32px;
-      display: none;
+      display: block;
+      margin: 0;
+      padding: 0;
+      background: #000;
     }
   </style>
 </head>
 <body>
-  <div id="status">iniciando...</div>
+  <div id="status">iniciando</div>
   <div id="content"></div>
-  <button id="playBtn" aria-label="Reproduzir vídeo">&#9658;</button>
 
   <script>
     (function () {
       var mediaMap = {
-        1: { type: "video", src: "media/videocar.mp4", poster: "media/poster1.jpg", label: "Tablet 1" },
+        1: { type: "video", src: "media/videocar.mp4", label: "Tablet 1", poster: "media/poster1.jpg" },
         2: { type: "image", src: "media/imagem2.jpg", label: "Tablet 2" },
         3: { type: "image", src: "media/imagem3.jpg", label: "Tablet 3" },
         4: { type: "image", src: "media/imagem4.jpg", label: "Tablet 4" },
         5: { type: "image", src: "media/imagem5.jpg", label: "Tablet 5" },
         6: { type: "image", src: "media/imagem6.jpg", label: "Tablet 6" },
-        7: { type: "video", src: "media/videocar.mp4", poster: "media/poster7.jpg", label: "Tablet 7" },
+        7: { type: "video", src: "media/videocar.mp4", label: "Tablet 7", poster: "media/poster7.jpg" },
         8: { type: "image", src: "media/imagem8.jpg", label: "Tablet 8" },
         9: { type: "image", src: "media/imagem9.jpg", label: "Tablet 9" }
       };
 
+      var status = document.getElementById("status");
       var content = document.getElementById("content");
-      var statusBox = document.getElementById("status");
-      var playBtn = document.getElementById("playBtn");
-      var currentVideo = null;
 
       function setStatus(text) {
-        statusBox.innerHTML = text;
+        status.textContent = text;
+      }
+
+      function logStatus(lines) {
+        setStatus(lines.join("\n"));
       }
 
       function getParam(name) {
         var q = (window.location.search || "").replace(/^\?/, "");
-        if (!q) return "";
+        if (!q) {
+          return "";
+        }
         var parts = q.split("&");
-        for (var i = 0; i < parts.length; i++) {
-          var pair = parts[i].split("=");
+        var i;
+        var pair;
+
+        for (i = 0; i < parts.length; i++) {
+          pair = parts[i].split("=");
           if (pair[0] === name) {
             return decodeURIComponent((pair[1] || "").replace(/\+/g, " "));
           }
@@ -103,19 +101,22 @@
 
       function detectTablet() {
         var raw = getParam("tablet");
-        if (!raw) raw = getParam("t");
-
-        var n = parseInt(raw, 10);
-        if (!isNaN(n) && n >= 1 && n <= 9) {
-          return n;
+        if (!raw) {
+          raw = getParam("t");
+        }
+        if (raw) {
+          var n = parseInt(raw, 10);
+          if (!isNaN(n) && n >= 1 && n <= 9) {
+            return n;
+          }
         }
 
         var file = (window.location.pathname || "").split("/").pop().toLowerCase();
         var match = file.match(/tablet(\d+)\.html$/);
         if (match) {
-          n = parseInt(match[1], 10);
-          if (!isNaN(n) && n >= 1 && n <= 9) {
-            return n;
+          var n2 = parseInt(match[1], 10);
+          if (!isNaN(n2) && n2 >= 1 && n2 <= 9) {
+            return n2;
           }
         }
 
@@ -124,24 +125,25 @@
 
       function clearContent() {
         content.innerHTML = "";
-        playBtn.style.display = "none";
-        currentVideo = null;
       }
 
-      function showMissing(message) {
+      function showMessage(message) {
         clearContent();
-
         var box = document.createElement("div");
         box.style.color = "#ffd166";
-        box.style.padding = "20px";
-        box.style.fontSize = "20px";
-        box.style.lineHeight = "1.4";
+        box.style.fontSize = "16px";
+        box.style.padding = "18px";
         box.style.textAlign = "center";
-        box.style.marginTop = "20%";
-        box.innerHTML = message || "arquivo não encontrado";
+        box.style.position = "absolute";
+        box.style.top = "50%";
+        box.style.left = "50%";
+        box.style.transform = "translate(-50%, -50%)";
+        box.style.maxWidth = "90%";
+        box.style.background = "#111";
+        box.style.border = "1px solid #333";
+        box.style.lineHeight = "1.4";
+        box.textContent = message;
         content.appendChild(box);
-
-        setStatus("erro");
       }
 
       function showImage(item) {
@@ -149,143 +151,148 @@
 
         var img = document.createElement("img");
         img.src = item.src;
-        img.alt = item.label || "";
+        img.alt = item.label || "Imagem";
         img.onerror = function () {
-          showMissing("Erro ao carregar imagem: " + item.src);
+          showMessage("Imagem não carregou: " + item.src);
         };
 
         content.appendChild(img);
-        setStatus((item.label || "Imagem") + " - imagem exibida");
+        logStatus(["tablet " + item._tablet, item.label, "imagem carregando: " + item.src]);
       }
 
-      function attachVideoEvents(video, item) {
-        video.onloadedmetadata = function () {
-          setStatus((item.label || "Vídeo") + " - metadados carregados");
-        };
-
-        video.onloadeddata = function () {
-          setStatus((item.label || "Vídeo") + " - vídeo carregado");
-        };
-
-        video.oncanplay = function () {
-          setStatus((item.label || "Vídeo") + " - pronto para reproduzir");
-        };
-
-        video.onplaying = function () {
-          setStatus((item.label || "Vídeo") + " - reproduzindo");
-          playBtn.style.display = "none";
-        };
-
-        video.onpause = function () {
-          setStatus((item.label || "Vídeo") + " - pausado");
-        };
-
-        video.onerror = function () {
-          if (item.poster) {
-            showImage({ src: item.poster, label: item.label + " poster" });
-            setStatus((item.label || "Vídeo") + " - erro no vídeo, exibindo poster");
-          } else {
-            showMissing("Erro ao carregar vídeo: " + item.src);
-          }
-        };
-      }
-
-      function tryPlay(video, item) {
-        try {
-          var r = video.play();
-
-          if (r && typeof r.then === "function") {
-            r.then(function () {
-              setStatus((item.label || "Vídeo") + " - reproduzindo autoplay");
-              playBtn.style.display = "none";
-            }).catch(function () {
-              setStatus((item.label || "Vídeo") + " - autoplay bloqueado, toque no play");
-              playBtn.style.display = "block";
-            });
-          } else {
-            setTimeout(function () {
-              if (video.paused) {
-                setStatus((item.label || "Vídeo") + " - aguardando play manual");
-                playBtn.style.display = "block";
-              } else {
-                setStatus((item.label || "Vídeo") + " - reproduzindo");
-                playBtn.style.display = "none";
-              }
-            }, 800);
-          }
-        } catch (e) {
-          setStatus((item.label || "Vídeo") + " - erro ao iniciar");
-          playBtn.style.display = "block";
+      function errorMessageFromVideo(video, item) {
+        var e = video.error;
+        var msg = "Erro do video";
+        if (e) {
+          var reason = "DESCONHECIDO";
+          if (e.code === 1) reason = "1 (aborto)";
+          if (e.code === 2) reason = "2 (rede)";
+          if (e.code === 3) reason = "3 (decodificação)";
+          if (e.code === 4) reason = "4 (formato não suportado)";
+          msg = "Erro do vídeo: " + reason;
         }
+        msg += " - " + item.src;
+        showMessage(msg + ". Exibindo fallback/arquivo de mídia.");
+
+        if (item.poster) {
+          showImage({ src: item.poster, label: "Poster de " + item.label });
+          return;
+        }
+
+        setStatus(msg);
+      }
+
+      function canPlayMp4() {
+        var test = document.createElement("video");
+        var codecs = 'video/mp4; codecs="avc1.42E01E, mp4a.40.2"';
+        var result = test.canPlayType("video/mp4");
+        var result2 = test.canPlayType(codecs);
+        return {
+          plain: result || "não",
+          codecs: result2 || "não"
+        };
       }
 
       function showVideo(item) {
         clearContent();
 
         var video = document.createElement("video");
-        currentVideo = video;
-
-        video.autoplay = true;
-        video.muted = true;
-        video.loop = true;
-        video.preload = "auto";
-        video.controls = true;
-
+        video.setAttribute("autoplay", "autoplay");
+        video.setAttribute("muted", "muted");
+        video.setAttribute("loop", "loop");
+        video.setAttribute("preload", "auto");
         video.setAttribute("playsinline", "playsinline");
         video.setAttribute("webkit-playsinline", "webkit-playsinline");
+        video.setAttribute("poster", item.poster || "");
+        video.controls = false;
+        video.src = item.src;
 
-        if (item.poster) {
-          video.setAttribute("poster", item.poster);
-        }
+        var support = canPlayMp4();
 
-        var source = document.createElement("source");
-        source.src = item.src;
-        source.type = "video/mp4";
-        video.appendChild(source);
+        video.onloadstart = function () {
+          logStatus([
+            "tablet " + item._tablet,
+            item.label,
+            "video src: " + item.src,
+            "canPlayType(mp4): " + support.plain,
+            "canPlayType(avc1/mp4a): " + support.codecs,
+            "iniciando..."
+          ]);
+        };
 
-        attachVideoEvents(video, item);
+        video.onloadedmetadata = function () {
+          logStatus([
+            "tablet " + item._tablet,
+            item.label,
+            "metadata ok",
+            "duração: " + (isNaN(video.duration) ? "n/a" : Math.round(video.duration) + "s")
+          ]);
+        };
+
+        video.oncanplay = function () {
+          logStatus([
+            "tablet " + item._tablet,
+            item.label,
+            "pronto para tocar"
+          ]);
+          try {
+            var r = video.play();
+            if (!r) {
+              logStatus(["tablet " + item._tablet, item.label, "play() sem retorno"]);
+            }
+          } catch (e2) {
+            logStatus(["tablet " + item._tablet, item.label, "play() lançou exceção", String(e2.message || e2)]);
+          }
+        };
+
+        video.onplaying = function () {
+          logStatus([
+            "tablet " + item._tablet,
+            item.label,
+            "reproduzindo"
+          ]);
+        };
+
+        video.onpause = function () {
+          logStatus([
+            "tablet " + item._tablet,
+            item.label,
+            "pausado"
+          ]);
+        };
+
+        video.onerror = function () {
+          errorMessageFromVideo(video, item);
+        };
+
+        video.addEventListener("stalled", function () {
+          logStatus(["tablet " + item._tablet, item.label, "estabelecendo conexão..."]);
+        });
 
         content.appendChild(video);
-        setStatus((item.label || "Vídeo") + " - carregando vídeo");
-
-        setTimeout(function () {
-          tryPlay(video, item);
-        }, 500);
+        setStatus("carregando vídeo");
       }
 
-      playBtn.onclick = function () {
-        if (!currentVideo) return;
+      function main() {
+        var tabletId = detectTablet();
+        var media = mediaMap[tabletId];
 
-        try {
-          var r = currentVideo.play();
-          if (r && typeof r.then === "function") {
-            r.then(function () {
-              playBtn.style.display = "none";
-              setStatus("reprodução manual iniciada");
-            }).catch(function () {
-              setStatus("não foi possível iniciar manualmente");
-            });
-          }
-        } catch (e) {
-          setStatus("erro ao tentar reprodução manual");
+        if (!media) {
+          showMessage("Tablet não configurado. Use ?tablet=1 até ?tablet=9");
+          setStatus("tablet inválido");
+          return;
         }
-      };
 
-      var tabletId = detectTablet();
-      var media = mediaMap[tabletId];
+        media._tablet = tabletId;
 
-      if (!media) {
-        showMissing("Tablet não configurado. Use ?tablet=1 até ?tablet=9.");
-        return;
+        if (media.type === "video") {
+          showVideo(media);
+        } else {
+          showImage(media);
+        }
       }
 
-      setStatus("tablet " + tabletId + " selecionado");
-
-      if (media.type === "video") {
-        showVideo(media);
-      } else {
-        showImage(media);
-      }
+      main();
     })();
   </script>
 </body>
