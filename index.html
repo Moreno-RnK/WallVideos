@@ -160,8 +160,21 @@
       if (match) tabletId = Number(match[1]);
     }
 
+    if (!Number.isInteger(tabletId) || tabletId < 1 || tabletId > 9) {
+      tabletId = 1;
+    }
+
     const media = mediaMap[tabletId];
     title.textContent = media ? `Tablet ${tabletId} · ${media.label}` : "Tablet não configurado";
+
+    if (!qs.get("tablet") && !qs.get("t") && !location.pathname.toLowerCase().match(/tablet\d+\.html$/)) {
+      const warning = document.createElement("div");
+      warning.className = "badge";
+      warning.textContent = "Nenhum tablet informado. Usando padrão: Tablet 1";
+      warning.style.background = "#d9b200";
+      warning.style.color = "#2a2409";
+      document.querySelector(".header").appendChild(warning);
+    }
 
     const setMissing = () => {
       status.textContent = "arquivo não encontrado";
