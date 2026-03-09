@@ -4,9 +4,58 @@
     "url": "https://moreno-rnk.github.io/WallVideos/media/default.jpg",
     "version": "1"
   },
+
   "209b50e71747d6": {
     "type": "video",
     "url": "https://moreno-rnk.github.io/WallVideos/media/videocar.mp4",
+    "version": "1"
+  },
+
+  "7c1a3b9f2d8841": {
+    "type": "video",
+    "url": "https://moreno-rnk.github.io/WallVideos/media/video2.mp4",
+    "version": "1"
+  },
+
+  "3f92a1b77c11aa": {
+    "type": "image",
+    "url": "https://moreno-rnk.github.io/WallVideos/media/image1.jpg",
+    "version": "1"
+  },
+
+  "a91cd0284f2b11": {
+    "type": "video",
+    "url": "https://moreno-rnk.github.io/WallVideos/media/video3.mp4",
+    "version": "1"
+  },
+
+  "0b3c98f4d112ff": {
+    "type": "image",
+    "url": "https://moreno-rnk.github.io/WallVideos/media/image2.jpg",
+    "version": "1"
+  },
+
+  "91a7cc11d88fa2": {
+    "type": "video",
+    "url": "https://moreno-rnk.github.io/WallVideos/media/video4.mp4",
+    "version": "1"
+  },
+
+  "4d112aa73bc981": {
+    "type": "video",
+    "url": "https://moreno-rnk.github.io/WallVideos/media/video5.mp4",
+    "version": "1"
+  },
+
+  "aa8732f11c9982": {
+    "type": "image",
+    "url": "https://moreno-rnk.github.io/WallVideos/media/image3.jpg",
+    "version": "1"
+  },
+
+  "bc112ff98d7123": {
+    "type": "video",
+    "url": "https://moreno-rnk.github.io/WallVideos/media/video6.mp4",
     "version": "1"
   }
 }
