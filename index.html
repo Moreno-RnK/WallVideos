@@ -1,13 +1,275 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="pt-br">
 <head>
-<meta charset="UTF-8">
-<style>
-body, html { margin:0; padding:0; width:100%; height:100%; background:black; }
-img { width:100vw; height:100vh; object-fit:cover; }
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kiosk Tablet - Página Única</title>
+  <style>
+    :root {
+      --bg: #090f24;
+      --panel: #121a32;
+      --line: #2a3662;
+      --text: #eef2ff;
+      --warn: #ffd166;
+      --ok: #aef359;
+    }
+
+    * { box-sizing: border-box; }
+    html, body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+      background: linear-gradient(140deg, #0a1227, #151f40);
+      color: var(--text);
+    }
+
+    body {
+      display: grid;
+      place-items: center;
+      padding: 10px;
+    }
+
+    .stage {
+      width: min(100%, 1360px);
+      height: min(100%, 920px);
+      aspect-ratio: 16 / 9;
+      max-height: calc(100vh - 20px);
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      display: grid;
+      grid-template-rows: auto 1fr;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgb(0 0 0 / 40%);
+    }
+
+    .header {
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: center;
+      font-size: 16px;
+      background: #121a33;
+      flex-wrap: wrap;
+    }
+
+    .content {
+      position: relative;
+      background: #000;
+      min-height: 0;
+    }
+
+    video, img, .placeholder {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border: 0;
+      display: block;
+      background: #0d152d;
+    }
+
+    .placeholder {
+      display: grid;
+      place-items: center;
+      text-align: center;
+      color: #d7defd;
+      padding: 16px;
+      font-size: 24px;
+      line-height: 1.4;
+    }
+
+    .missing {
+      color: var(--warn);
+      font-weight: 700;
+      border: 1px dashed var(--warn);
+      border-radius: 10px;
+      padding: 18px;
+      margin: 18px;
+      background: #1f2c52;
+      max-width: 80%;
+      width: 680px;
+    }
+
+    .playBtn {
+      position: absolute;
+      right: 16px;
+      bottom: 16px;
+      width: 72px;
+      height: 72px;
+      border-radius: 999px;
+      border: 0;
+      color: #fff;
+      font-size: 36px;
+      background: rgb(0 0 0 / 55%);
+      border: 1px solid #8fc4ff99;
+      display: none;
+      cursor: pointer;
+    }
+
+    .show-play .playBtn { display: inline-grid; place-items: center; }
+
+    .badge {
+      background: var(--warn);
+      color: #241f12;
+      padding: 3px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .ok { color: var(--ok); }
+  </style>
 </head>
 <body>
-<img src="media/videocar.mp4">
+  <section class="stage" id="stage" aria-live="polite">
+    <div class="header">
+      <div id="title">Carregando mídia do tablet...</div>
+      <div id="status" class="badge">sem status</div>
+    </div>
+    <div id="content" class="content"></div>
+  </section>
+
+  <script>
+    const mediaMap = {
+      1: { type: "video", src: "media/videocar.mp4", label: "Tablet 1" },
+      2: { type: "image", src: "media/imagem2.jpg", label: "Tablet 2" },
+      3: { type: "image", src: "media/imagem3.jpg", label: "Tablet 3" },
+      4: { type: "image", src: "media/imagem4.jpg", label: "Tablet 4" },
+      5: { type: "image", src: "media/imagem5.jpg", label: "Tablet 5" },
+      6: { type: "image", src: "media/imagem6.jpg", label: "Tablet 6" },
+      7: { type: "video", src: "media/videocar.mp4", label: "Tablet 7" },
+      8: { type: "image", src: "media/imagem8.jpg", label: "Tablet 8" },
+      9: { type: "image", src: "media/imagem9.jpg", label: "Tablet 9" }
+    };
+
+    const content = document.getElementById("content");
+    const status = document.getElementById("status");
+    const title = document.getElementById("title");
+
+    const qs = new URLSearchParams(location.search);
+    let tabletId = Number(qs.get("tablet") || qs.get("t"));
+
+    if (!tabletId) {
+      const file = location.pathname.split("/").pop().toLowerCase();
+      const match = file.match(/tablet(\d+)\.html/);
+      if (match) tabletId = Number(match[1]);
+    }
+
+    const media = mediaMap[tabletId];
+    title.textContent = media ? `Tablet ${tabletId} · ${media.label}` : "Tablet não configurado";
+
+    const setMissing = () => {
+      status.textContent = "arquivo não encontrado";
+      content.innerHTML = "";
+      const box = document.createElement("div");
+      box.className = "placeholder missing";
+      box.textContent = "Altere o conteúdo deste tablet ou ajuste mediaMap no index.html";
+      content.appendChild(box);
+    };
+
+      const showVideo = (item) => {
+        content.innerHTML = "";
+        const stage = document.createElement("div");
+        stage.style.position = "relative";
+        stage.style.width = "100%";
+        stage.style.height = "100%";
+
+      const video = document.createElement("video");
+      video.className = "media";
+      video.muted = true;
+      video.loop = true;
+      video.playsInline = false;
+      video.preload = "auto";
+      video.controls = false;
+
+      const source = document.createElement("source");
+      source.src = item.src;
+      source.type = "video/mp4";
+      video.appendChild(source);
+
+      const btn = document.createElement("button");
+      btn.className = "playBtn";
+      btn.textContent = "▶";
+      btn.setAttribute("aria-label", "Reproduzir vídeo");
+
+      const enterFullscreen = async () => {
+        if (!video.requestFullscreen) {
+          if (video.webkitEnterFullscreen) {
+            video.webkitEnterFullscreen();
+            return;
+          }
+          return;
+        }
+
+        try {
+          if (document.fullscreenElement) return;
+          await video.requestFullscreen();
+        } catch (e) {
+          // alguns navegadores bloqueiam; segue em janela normal
+        }
+      };
+
+      const startWithFullscreen = () => {
+        video.play().then(() => {
+          stage.classList.remove("show-play");
+          status.textContent = "reproduzindo";
+        }).catch(() => {});
+        enterFullscreen();
+      };
+
+      btn.addEventListener("click", () => {
+        startWithFullscreen();
+      });
+
+      video.addEventListener("error", () => setMissing());
+      video.addEventListener("playing", () => {
+        status.textContent = "reproduzindo";
+        stage.classList.remove("show-play");
+      });
+      video.addEventListener("pause", () => {
+        status.textContent = "pausado";
+      });
+
+      stage.appendChild(video);
+      stage.appendChild(btn);
+      content.appendChild(stage);
+
+      setTimeout(() => {
+        status.textContent = "tentando autoplay";
+        video.play().then(() => {
+          status.textContent = "reproduzindo (autoplay)";
+        }).catch(() => {
+          status.textContent = "autoplay bloqueado";
+          stage.classList.add("show-play");
+          return;
+        });
+      }, 40);
+    };
+
+    const showImage = (item) => {
+      content.innerHTML = "";
+      const img = document.createElement("img");
+      img.loading = "eager";
+      img.src = item.src;
+      img.alt = item.label;
+      img.addEventListener("error", () => setMissing());
+      content.appendChild(img);
+      status.textContent = "imagem exibida";
+    };
+
+    if (!media) {
+      setMissing();
+      status.textContent = "configure ?tablet=1 até ?tablet=9";
+    } else if (media.type === "video") {
+      showVideo(media);
+    } else {
+      showImage(media);
+    }
+  </script>
 </body>
 </html>
